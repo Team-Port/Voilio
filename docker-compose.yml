@@ -1,8 +1,40 @@
 version: "3"
 
 services:
+  nginx:
+    image: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes: # 호스트 디렉터리의 파일과 도커 컨테이너의 파일을 매핑한다.
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    expose:
+      - 80
+    restart: always
+    networks:
+      - app-tier
+
+  backend:
+    container_name: api-server
+    build: ./backend/
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/voilio
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - app-tier
+
   mysql:
-    container_name: db-mysql
+    container_name: mysql
     image: mysql/mysql-server:8.0
     tty: true
     environment:
@@ -36,7 +68,7 @@ services:
       - app-tier
 
   frontend:
-    container_name: frontend-react
+    container_name: frontend
     build:
       context: ./frontend
     environment:
@@ -49,38 +81,6 @@ services:
       - app-tier
     stdin_open: true
     tty: true
-
-  nginx:
-    image: nginx
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    volumes: # 호스트 디렉터리의 파일과 도커 컨테이너의 파일을 매핑한다.
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - build_folder:/var/www/frontend
-      - ./nginx/log:/var/log/nginx
-    depends_on:
-      - backend
-      - frontend
-    expose:
-      - 80
-    restart: always
-    networks:
-      - app-tier
-
-  backend:
-    container_name: api-server
-    build: ./backend/
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/voilio
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    networks:
-      - app-tier
 
 networks:
   app-tier:
