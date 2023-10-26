@@ -1,18 +1,5 @@
 version: "3"
-
 services:
-  backend:
-    container_name: api-server
-    build: ./backend/
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/voilio
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    networks:
-      - app-tier
-
   mysql:
     container_name: db-mysql
     image: mysql/mysql-server:8.0
@@ -34,7 +21,6 @@ services:
       - "3306"
     networks:
       - app-tier
-
   database-adminer:
     container_name: db-adminer
     image: adminer:latest
@@ -46,9 +32,8 @@ services:
       - ADMINER_PLUGINS=tables-filter tinymce
     networks:
       - app-tier
-
   frontend:
-    container_name: frontend
+    container_name: frontend-react
     build:
       context: ./frontend
     environment:
@@ -61,7 +46,6 @@ services:
       - app-tier
     stdin_open: true
     tty: true
-
   nginx:
     image: nginx
     build:
@@ -81,11 +65,21 @@ services:
     restart: always
     networks:
       - app-tier
+  backend:
+    container_name: api-server
+    build: ./backend/
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/voilio
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - app-tier
 
 networks:
   app-tier:
     driver: bridge
-
 volumes:
   mysql-data:
   build_folder:
