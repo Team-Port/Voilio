@@ -48,6 +48,8 @@ services:
     tty: true
     expose:
       - "3000"
+    ports:
+      - "3000"
   nginx:
     image: nginx
     ports:
@@ -75,6 +77,8 @@ services:
       - "8080"
     networks:
       - app-tier
+    ports:
+      - "8080"
 
 networks:
   app-tier:
