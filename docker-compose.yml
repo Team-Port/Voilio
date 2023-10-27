@@ -61,6 +61,8 @@ services:
       - backend
       - frontend
     restart: always
+    networks:
+      - app-tier
   backend:
     container_name: api-server
     build: ./backend/
