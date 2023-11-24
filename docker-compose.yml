@@ -44,21 +44,17 @@ services:
       - ./frontend/node_modules/:/frontend/node_modules
     networks:
       - app-tier
+  nginx:
+    build:
+      context: '.'
+      dockerfile: dockerfiles/nginx.dockerfile
     ports:
       - "80:80"
-#  nginx:
-#    image: nginx
-#    ports:
-#      - "80:80"
-#    volumes:
-#      #docker-compose.yml과 같은 레벨에 둔 nginx.conf를 mount.
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-#    depends_on:
-#      - backend
-#      - frontend
-#    restart: always
-#    networks:
-#      - app-tier
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+    networks:
+      - app-tier
   backend:
     container_name: api-server
     build: ./backend/
@@ -68,12 +64,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    expose:
-      - "8080"
     networks:
       - app-tier
-    ports:
-      - "8080:8080"
 
 networks:
   app-tier:
